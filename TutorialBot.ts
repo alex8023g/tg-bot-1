@@ -1,4 +1,4 @@
-import { Bot, InlineKeyboard } from 'grammy';
+import { Bot, InlineKeyboard, Keyboard } from 'grammy';
 
 //Store bot screaming status
 let screaming = true;
@@ -19,6 +19,7 @@ bot.command('whisper', () => {
 //Pre-assign menu text
 const firstMenu = '<b>Menu 1</b>\n\nA beautiful menu with a shiny inline button.';
 const secondMenu = '<b>Menu 2</b>\n\nA better menu with even more shiny inline buttons.';
+const reqPhoneNumMenu = '<b>Menu 2</b>\n\nНам нужен номер вашего телефона';
 
 //Pre-assign button text
 const nextButton = 'Next';
@@ -32,6 +33,7 @@ const secondMenuMarkup = new InlineKeyboard()
   .text(backButton, backButton)
   .text(tutorialButton, 'https://core.telegram.org/bots/tutorial');
 
+const reqPoneNumBtn = new Keyboard().requestContact('сообщить телефон');
 //This handler sends a menu with the inline buttons we pre-assigned above
 bot.command('m', async (ctx) => {
   await ctx.reply(firstMenu, {
@@ -44,6 +46,12 @@ bot.command('n', async (ctx) => {
   await ctx.reply(secondMenu, {
     parse_mode: 'HTML',
     reply_markup: secondMenuMarkup,
+  });
+});
+bot.command('start', async (ctx) => {
+  await ctx.reply(reqPhoneNumMenu, {
+    parse_mode: 'HTML',
+    reply_markup: reqPoneNumBtn,
   });
 });
 
@@ -77,9 +85,17 @@ bot.on('message', async (ctx) => {
   console.log(
     `${ctx.from.first_name} wrote ${'text' in ctx.message ? ctx.message.text : ''}`,
     ctx.from,
-    '!',
-    ctx
+    'контакты:',
+    ctx.message.contact,
+    '!'
+    // ctx
   );
+
+  if (ctx.message.contact) {
+    await ctx.reply('спасибо', {
+      reply_markup: { remove_keyboard: true },
+    });
+  }
 
   if (screaming && ctx.message.text) {
     console.log('if');
